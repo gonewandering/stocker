@@ -1,0 +1,64 @@
+/* app css stylesheet */
+
+.container { 
+	max-width: none;
+	padding: 0 40px;
+}
+
+.navbar-brand { 
+	max-width:300px;
+}
+.navbar .col-2 { 
+	width:300px;
+	margin-left:0 !important;
+	padding-left:0 !important;
+}
+
+.menu {
+  list-style: none;
+  border-bottom: 0.1em solid black;
+  margin-bottom: 2em;
+  padding: 0 0 0.5em;
+}
+
+.right { 
+	text-align:right;
+}
+
+.menu:before {
+  content: "[";
+}
+
+.menu:after {
+  content: "]";
+}
+
+.menu > li {
+  display: inline;
+}
+
+.menu > li:before {
+  content: "|";
+  padding-right: 0.3em;
+}
+
+.menu > li:nth-child(1):before {
+  content: "";
+  padding: 0;
+}
+
+h1.sub { 
+	font-weight:normal;
+}
+
+input.input-big { 
+	font-size:30px;
+	line-height:34px;
+	height:inherit;
+}
+
+.inputs .input-group { 
+	margin-bottom:8px;
+}
+
+/* Secondary Nav Formats */

@@ -1,0 +1,73 @@
+
+	<div class="nav navbar">
+	  <div class="navbar-inner">
+		<a href="#" class="navbar-brand">
+			Stock'er
+		</a>
+		<form class="form-inline navbar-form pull-right">
+		  <div class="input-group col-2">
+			  <span class="input-group-addon">Ticker</span>
+			  <input type="text" placeholder="ticker symbol" ng-model="ticker" class="form-control">
+		  </div>	
+		  <div class="input-group col-2">
+			  <span class="input-group-addon">Start Date</span>
+			  <input type="text" placeholder="start date" ng-model="dates.start" class="form-control">
+		  </div>
+		  <div class="input-group col-2">
+			  <span class="input-group-addon">End Date</span>
+			  <input type="text" placeholder="end date" ng-model="dates.end" class="form-control">
+		  </div>		  
+		  <button type="submit" class="btn btn-default" ng-click="getData()">GO</button>
+		</form>
+	  </div>
+	</div>
+
+
+<div class="container" ng-repeat="sym in syms">
+	<div class="row">
+		<div class="col-4 sidebar">
+			<div class="row">
+				<div class="col-12 inputs">
+					  <h2>Inputs</h2>
+					  <div class="input-group">
+						  <span class="input-group-addon">Initial Shares</span>
+						  <input type="text" placeholder="Initial Investment" ng-model="sym.initial" class="form-control col-12">
+					  </div>
+					  <div class="input-group">
+						  <span class="input-group-addon">Trade Fee ($)</span>
+						  <input type="text" placeholder="Trade Fee" ng-model="sym.fee" class="form-control col-12">
+					  </div>
+					  <div class="input-group">
+						  <span class="input-group-addon">Buy At</span>
+						  <input type="text" placeholder="buy when" ng-model="sym.buy" class="form-control col-12">
+					  </div>	
+					  <div class="input-group">
+						  <span class="input-group-addon">Sell At</span>
+						  <input type="text" placeholder="sell when" ng-model="sym.sell" class="form-control col-12">
+					  </div>				  
+					  <button ng-click="symUpdate(sym)" class="btn btn-default">Update</button>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-12">
+					  <hr />
+					  <h2>Outcomes</h2>
+				</div>
+			</div>
+			<div class="row" ng-repeat="outcome in outcomes().items">
+				<div class="col-2 col-sm-2 col-lg-2">
+					<h5 style="color: {{ outcome.strokeColor }}"><i class="icon-circle"></i></h5>
+				</div>
+				<div class="col-6 col-sm-6 col-lg-6">
+					  <h5>{{ outcome.label }}: </h5>
+				</div>
+				<div class="col-4 col-sm-4 col-lg-4 right">
+					<h5>${{ outcomes().last(outcome)|number:0 }} / {{ (outcomes().last(outcome)*100 / outcomes().last(outcomes().items[0]))-100 | number:2 }}%</h5>
+				</div>
+			</div>
+		</div>
+		<div class="col-8">
+			<canvas chart type="Line" options="sym.options" data="sym.chart" id="lineChart" width="2000" style="max-width:100%;" height="600"></canvas>
+		</div>
+	</div>
+</div>
