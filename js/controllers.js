@@ -10,12 +10,9 @@ angular.module('app.controllers', []).
 	  	  end: "2013-07-01"
   	  };
   	  
-  	  $scope.ticker = "BND";
+  	  $scope.loading = true;
   	  
-  	  $scope.opttons = {
-	  	  pointDot : false,
-	
-  	  }
+  	  $scope.ticker = "BND";
   	  
   	  $scope.outcomes = function () { 
 	  	  return [
@@ -32,7 +29,6 @@ angular.module('app.controllers', []).
 	  	 return {
 	  	 	items: $scope.syms[0].chart.datasets,
 	  	 	last: function (arr) { 
-	  	 		console.log(arr);
 		  	 	return arr.data[arr.data.length - 1];
 	  	 	}
 	  	 }
@@ -41,10 +37,11 @@ angular.module('app.controllers', []).
 
   	  $scope.syms = [{
   	  		options: {
-	  	  		animation:false,
-	  	  		pointDot : false
+				  animation:false,
+				  pointDot : false
   	  		},
 	        initial: 1000,
+	        bank: 1000,
 	        fee: .5,
 	        buy: "x(0) > x(1)*1.001",
 	        sell: "x(0) < x(1)*.999",
@@ -103,19 +100,23 @@ angular.module('app.controllers', []).
       };
       
       $scope.symUpdate = function (sym) { 
+      	$scope.loading = true;
       	var port = [];
       	var stat = [];
       	var adj = [];
       	var ls = [];
       	
-      	var shares = sym.initial;
       	var bank = 0;
+      	
+      	var total = ($scope.quotes[0] * sym.initial) + bank;
+      	
+      	var shares = sym.initial;
       	
 	     for (var n in $scope.quotes) { 
 		     
 		     // Get value of overall portfolio
-		     port.push($scope.quotes[n]* sym.initial);
-			 stat.push($scope.quotes[0] * sym.initial);
+		     port.push($scope.quotes[n] * sym.initial);
+			 stat.push(total);
 			 
 			 // Get adjusted values
 			 var buy = eval(sym.buy.replace(/x\(/g, "$scope.x("+n+", "));
@@ -123,33 +124,35 @@ angular.module('app.controllers', []).
 			 
 			 // Check whether to buy sell etc.
 			 if (buy == true && bank > 0) { 
-				 shares = shares + (bank/$scope.quotes[n]) - sym.fee;
+				 shares = shares + (bank / $scope.quotes[n]) - sym.fee;
 				 bank = 0;
-				 adj.push(shares*$scope.quotes[n]);
+				 adj.push(bank + (shares * $scope.quotes[n]));
 				 
 			 } else if (sell == true && shares > 0) { 
 				 bank = bank + (shares*$scope.quotes[n]) - sym.fee;
 				 shares = 0;
-				 adj.push(bank);
+				 adj.push(bank + (shares*$scope.quotes[n]));
 				 
 			 } else { 
-				 adj.push(bank+(shares*$scope.quotes[n])); 
+				 adj.push(bank + (shares*$scope.quotes[n])); 
 			 }
 			 
-			 var iv = $scope.quotes[0]*sym.initial;
-			 var lng = (bank+(shares*$scope.quotes[n]))-iv;
-			 var shrt = iv - ($scope.quotes[n]*sym.initial);
+			 var iv = $scope.quotes[0] * sym.initial;
+			 var lng = (bank + (shares * $scope.quotes[n])) - iv;
+			 var shrt = iv - ($scope.quotes[n] * sym.initial);
 			 ls.push(iv + lng + shrt);
 	     }
 	     angular.copy(adj, sym.chart.datasets[2].data);    
 	     angular.copy(port, sym.chart.datasets[1].data);
 	     angular.copy(stat, sym.chart.datasets[0].data);
 	     angular.copy(ls, sym.chart.datasets[3].data);
+	     $scope.loading = false;
       }
   	  
   	  $scope.getData = function () { 
 	  	  var url = 'http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%22'+$scope.ticker+'%22%20and%20startDate%20%3D%20%22'+$scope.dates.start+'%22%20and%20endDate%20%3D%20%22'+$scope.dates.end+'%22&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=JSON_CALLBACK';
 	  	  
+	  	  $scope.loading = true;
 	  	  $http.jsonp(url).success(function (data) {
 	  	  	var quo = data.query.results.quote;
 	  	  	var labels = [];
@@ -168,22 +171,21 @@ angular.module('app.controllers', []).
 		  	  	angular.copy(labels.reverse(), $scope.syms[n].chart.labels);
 		  	  	$scope.symUpdate($scope.syms[n]);
 	  	  	}
+	  	  	$scope.loading = false;
 	  	  });
   	  }
   	  	 
      $scope.getData();
   }])
   
+/*
 function sym(config) { 
 	this.config = config;
 	
-	this.init = function () { 
-		console.log($scope.dates);
-	}
-	
 	this.update = function () { 
-		console.log(config);
+
 	}
 	
 	this.init();
 }
+*/
