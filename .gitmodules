@@ -1,0 +1,3 @@
+[submodule "lib/chartjs"]
+	path = lib/chartjs
+	url = https://github.com/nnnick/Chart.js.git
