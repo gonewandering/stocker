@@ -1,3 +1,6 @@
 [submodule "lib/chartjs"]
 	path = lib/chartjs
 	url = https://github.com/nnnick/Chart.js.git
+[submodule "lib/angles"]
+	path = lib/angles
+	url = https://github.com/lgsilver/angles.git
