@@ -3,7 +3,7 @@
 /* Controllers */
 
 angular.module('app.controllers', []).
-  controller('Summary', ['$scope', '$http', function($scope, $http) {
+  controller('Summary', ['$scope', '$http', '$filter', function($scope, $http, $filter) {
   
   	  $scope.dates = {
 	  	  start: "2012-07-01",
@@ -43,7 +43,7 @@ angular.module('app.controllers', []).
 	        initial: 1000,
 	        bank: 1000,
 	        fee: .5,
-	        buy: "x(0) > x(1)*1.001",
+	        buy: "x(0:5).mean() > x(1)*1.001",
 	        sell: "x(0) < x(1)*.999",
 			chart: {
 		        labels : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
@@ -95,8 +95,16 @@ angular.module('app.controllers', []).
       
       // Sym helpers
       
-      $scope.x = function (n, x) { 
-	  	  return $scope.quotes[n-x];    
+      $scope.x = function (n, x) {
+      	  var vals = $scope.quotes;
+      	  
+      	  if (String(x).indexOf(":") !== -1) { 
+	      	  var ind = x.split(":");
+	      	  vals = vals.slice(n-Number(ind[1]), n-Number(ind[0]));
+	      	  vals = $filter('json')(vals);
+	      	  vals = vals.replace(/\"/g, "");
+	      	  return vals;
+      	  } else { return vals[n-x]; };    
       };
       
       $scope.symUpdate = function (sym) { 
@@ -119,8 +127,8 @@ angular.module('app.controllers', []).
 			 stat.push(total);
 			 
 			 // Get adjusted values
-			 var buy = eval(sym.buy.replace(/x\(/g, "$scope.x("+n+", "));
-			 var sell = eval(sym.sell.replace(/x\(/g, "$scope.x("+n+", "));
+			 var buy = eval(sym.buy.replace(/x\((.+?)\)/g, function (match, contents) { return $scope.x(n, contents); }));
+			 var sell = eval(sym.sell.replace(/x\((.+?)\)/g, function (match, contents) { return $scope.x(n, contents); }));
 			 
 			 // Check whether to buy sell etc.
 			 if (buy == true && bank > 0) { 
